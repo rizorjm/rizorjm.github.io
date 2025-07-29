@@ -6,12 +6,13 @@
     <title>AI Assistant</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="client.js"></script>
 </head>
 <body>
     <div class="container" ng-controller="AIController">
         <!-- Header with AI Icon -->
         <div class="header">
-            <div class="ai-icon"></div>
+            <div class="ai-icon">🤖</div>
             <h1>AI Assistant</h1>
             <div class="subtitle">Powered by Gemini</div>
         </div>
@@ -32,11 +33,10 @@
             
             <!-- File Upload Section -->
             <div class="form-group">
-                <label for="fileInput">Upload file:</label>
+                <label>Upload file:</label>
                 <div class="file-input-wrapper">
                     <input type="file"
                            id="fileInput"
-                           class="file-input"
                            accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.csv"
                            onchange="angular.element(this).scope().fileChanged(this)"
                            ng-disabled="data.loading"
@@ -77,94 +77,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // AngularJS App
-        angular.module('aiAssistantApp', [])
-        .controller('AIController', function($scope, $http) {
-            $scope.data = {
-                prompt: '',
-                imageBase64: '',
-                imageType: '',
-                result: '',
-                editableResponse: '',
-                error: '',
-                loading: false
-            };
-
-            $scope.fileChanged = function(element) {
-                var file = element.files[0];
-                if (!file) {
-                    $scope.data.imageBase64 = '';
-                    $scope.data.imageType = '';
-                    return;
-                }
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    $scope.$apply(function() {
-                        var base64String = e.target.result.split(',')[1];
-                        $scope.data.imageBase64 = base64String;
-                        $scope.data.imageType = file.type;
-                    });
-                };
-                reader.readAsDataURL(file);
-            };
-
-            $scope.onKeyDown = function($event) {
-                if ($event.keyCode === 13) {
-                    $event.preventDefault();
-                    $scope.submitForm();
-                }
-            };
-
-            $scope.submitForm = function() {
-                $scope.data.loading = true;
-                $scope.data.result = '';
-                $scope.data.error = '';
-                $scope.data.editableResponse = '';
-
-                var apiKey = 'AIzaSyDYI5n4X1GbGnlmEsTgSMC8ZUm7Yt2Or7I';
-                var endpoint = 'https://cors-anywhere.herokuapp.com/https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
-
-                var body = {
-                    contents: [
-                        {
-                            parts: [
-                                { text: $scope.data.prompt },
-                                {
-                                    inline_data: {
-                                        mime_type: $scope.data.imageType,
-                                        data: $scope.data.imageBase64
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                };
-
-                $http.post(endpoint, body)
-                    .then(function(response) {
-                        console.log('API Response:', response);
-                        var respObj = response.data;
-                        var answer = '';
-                        if (respObj && respObj.candidates && respObj.candidates[0] &&
-                            respObj.candidates[0].content &&
-                            respObj.candidates[0].content.parts &&
-                            respObj.candidates[0].content.parts[0] &&
-                            respObj.candidates[0].content.parts[0].text) {
-                            answer = respObj.candidates[0].content.parts[0].text;
-                        }
-                        $scope.data.result = answer;
-                        $scope.data.editableResponse = answer;
-                        $scope.data.loading = false;
-                    }, function(error) {
-                        console.log('API Error:', error);
-                        $scope.data.error = 'Error: ' + (error.data && error.data.error && error.data.error.message ? error.data.error.message : 'Network error. Check console for details.');
-                        $scope.data.loading = false;
-                    });
-            };
-        });
-    </script>
 </body>
 </html>
 
