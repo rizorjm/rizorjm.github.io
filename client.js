@@ -30,13 +30,17 @@ angular.module('aiAssistantApp', [])
     };
 
     $scope.onKeyDown = function($event) {
-        if ($event.keyCode === 13) {
+        if ($event.keyCode === 13 && !$scope.data.loading) {
             $event.preventDefault();
             $scope.submitForm();
         }
     };
 
     $scope.submitForm = function() {
+        if ($scope.data.loading || !$scope.data.prompt.trim()) {
+            return;
+        }
+
         $scope.data.loading = true;
         $scope.data.result = '';
         $scope.data.error = '';
@@ -77,13 +81,20 @@ angular.module('aiAssistantApp', [])
                     respObj.candidates[0].content.parts[0].text) {
                     answer = respObj.candidates[0].content.parts[0].text;
                 }
-                $scope.data.result = answer;
-                $scope.data.editableResponse = answer;
-                $scope.data.loading = false;
+                
+                $scope.$apply(function() {
+                    $scope.data.result = answer;
+                    $scope.data.editableResponse = answer;
+                    $scope.data.loading = false;
+                    $scope.data.error = '';
+                });
             }, function(error) {
                 console.log('API Error:', error);
-                $scope.data.error = 'Error: ' + (error.data && error.data.error && error.data.error.message ? error.data.error.message : 'Network error. Check console for details.');
-                $scope.data.loading = false;
+                $scope.$apply(function() {
+                    $scope.data.error = 'Error: ' + (error.data && error.data.error && error.data.error.message ? error.data.error.message : 'Network error. Please try again.');
+                    $scope.data.loading = false;
+                    $scope.data.result = '';
+                });
             });
     };
 });
