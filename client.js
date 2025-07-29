@@ -1,4 +1,4 @@
-function($scope) {
+function($scope, $http) {
   $scope.data = {
     prompt: '',
     imageBase64: '',
@@ -39,11 +39,44 @@ function($scope) {
     $scope.data.result = '';
     $scope.data.error = '';
     $scope.data.editableResponse = '';
-    $scope.server.update({
-      prompt: $scope.data.prompt,
-      imageBase64: $scope.data.imageBase64,
-      imageType: $scope.data.imageType
-    });
+
+    var apiKey = 'AIzaSyDYI5n4X1GbGnlmEsTgSMC8ZUm7Yt2Or7I';
+    var endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+
+    var body = {
+      contents: [
+        {
+          parts: [
+            { text: $scope.data.prompt },
+            {
+              inline_data: {
+                mime_type: $scope.data.imageType,
+                data: $scope.data.imageBase64
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    $http.post(endpoint, body)
+      .then(function(response) {
+        var respObj = response.data;
+        var answer = '';
+        if (respObj && respObj.candidates && respObj.candidates[0] &&
+            respObj.candidates[0].content &&
+            respObj.candidates[0].content.parts &&
+            respObj.candidates[0].content.parts[0] &&
+            respObj.candidates[0].content.parts[0].text) {
+          answer = respObj.candidates[0].content.parts[0].text;
+        }
+        $scope.data.result = answer;
+        $scope.data.editableResponse = answer;
+        $scope.data.loading = false;
+      }, function(error) {
+        $scope.data.error = 'Error: ' + (error.data && error.data.error && error.data.error.message ? error.data.error.message : 'Unknown error');
+        $scope.data.loading = false;
+      });
   };
 
   $scope.$watch('data.response', function(newVal) {
