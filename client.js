@@ -36,6 +36,16 @@ angular.module('aiAssistantApp', [])
         }
     };
 
+    // Multiple proxy endpoints to try
+    var proxyEndpoints = [
+        'https://thingproxy.freeboard.io/fetch/',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://crossorigin.me/',
+        'https://cors-proxy.htmldriven.com/?url='
+    ];
+
+    var currentProxyIndex = 0;
+
     $scope.submitForm = function() {
         if ($scope.data.loading || !$scope.data.prompt.trim()) {
             return;
@@ -45,15 +55,27 @@ angular.module('aiAssistantApp', [])
         $scope.data.result = '';
         $scope.data.error = '';
         $scope.data.editableResponse = '';
+        currentProxyIndex = 0;
 
+        tryWithProxy();
+    };
+
+    function tryWithProxy() {
         var apiKey = 'AIzaSyDYI5n4X1GbGnlmEsTgSMC8ZUm7Yt2Or7I';
+        var geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
         
-        // Try alternative CORS proxies
-        var endpoint = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey);
-        
-        // Alternative proxies you can try:
-        // var endpoint = 'https://thingproxy.freeboard.io/fetch/https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
-        // var endpoint = 'https://api.codetabs.com/v1/proxy?quest=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+        var endpoint;
+        if (currentProxyIndex < proxyEndpoints.length) {
+            var proxy = proxyEndpoints[currentProxyIndex];
+            if (proxy.includes('quest=') || proxy.includes('url=')) {
+                endpoint = proxy + encodeURIComponent(geminiUrl);
+            } else {
+                endpoint = proxy + geminiUrl;
+            }
+        } else {
+            // Try direct call as last resort (will likely fail due to CORS)
+            endpoint = geminiUrl;
+        }
 
         var body = {
             contents: [
@@ -81,11 +103,14 @@ angular.module('aiAssistantApp', [])
             }
         };
 
+        console.log('Trying proxy ' + (currentProxyIndex + 1) + ': ' + endpoint);
+
         $http.post(endpoint, body, config)
             .then(function(response) {
                 console.log('API Response:', response);
                 var respObj = response.data;
                 var answer = '';
+                
                 if (respObj && respObj.candidates && respObj.candidates[0] &&
                     respObj.candidates[0].content &&
                     respObj.candidates[0].content.parts &&
@@ -99,10 +124,18 @@ angular.module('aiAssistantApp', [])
                 $scope.data.loading = false;
                 $scope.data.error = '';
             }, function(error) {
-                console.log('API Error:', error);
-                $scope.data.error = 'CORS proxy error. Try refreshing or check console for details.';
-                $scope.data.loading = false;
-                $scope.data.result = '';
+                console.log('Proxy ' + (currentProxyIndex + 1) + ' failed:', error);
+                currentProxyIndex++;
+                
+                if (currentProxyIndex <= proxyEndpoints.length) {
+                    // Try next proxy
+                    setTimeout(tryWithProxy, 1000); // Wait 1 second before trying next proxy
+                } else {
+                    // All proxies failed
+                    $scope.data.error = 'All CORS proxies failed. Please try again later or use a backend server.';
+                    $scope.data.loading = false;
+                    $scope.data.result = '';
+                }
             });
-    };
+    }
 });
