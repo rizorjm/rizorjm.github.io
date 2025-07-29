@@ -41,7 +41,11 @@ function($scope, $http) {
     $scope.data.editableResponse = '';
 
     var apiKey = 'AIzaSyDYI5n4X1GbGnlmEsTgSMC8ZUm7Yt2Or7I';
-    var endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+    // Use CORS proxy
+    var endpoint = 'https://cors-anywhere.herokuapp.com/https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+    
+    // Alternative CORS proxies you can try:
+    // var endpoint = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey);
 
     var body = {
       contents: [
@@ -61,6 +65,7 @@ function($scope, $http) {
 
     $http.post(endpoint, body)
       .then(function(response) {
+        console.log('API Response:', response);
         var respObj = response.data;
         var answer = '';
         if (respObj && respObj.candidates && respObj.candidates[0] &&
@@ -74,7 +79,8 @@ function($scope, $http) {
         $scope.data.editableResponse = answer;
         $scope.data.loading = false;
       }, function(error) {
-        $scope.data.error = 'Error: ' + (error.data && error.data.error && error.data.error.message ? error.data.error.message : 'Unknown error');
+        console.log('API Error:', error);
+        $scope.data.error = 'Error: ' + (error.data && error.data.error && error.data.error.message ? error.data.error.message : 'Network error. Check console for details.');
         $scope.data.loading = false;
       });
   };
