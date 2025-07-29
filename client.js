@@ -47,7 +47,13 @@ angular.module('aiAssistantApp', [])
         $scope.data.editableResponse = '';
 
         var apiKey = 'AIzaSyDYI5n4X1GbGnlmEsTgSMC8ZUm7Yt2Or7I';
-        var endpoint = 'https://cors-anywhere.herokuapp.com/https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+        
+        // Try alternative CORS proxies
+        var endpoint = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey);
+        
+        // Alternative proxies you can try:
+        // var endpoint = 'https://thingproxy.freeboard.io/fetch/https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+        // var endpoint = 'https://api.codetabs.com/v1/proxy?quest=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
 
         var body = {
             contents: [
@@ -69,7 +75,13 @@ angular.module('aiAssistantApp', [])
             });
         }
 
-        $http.post(endpoint, body)
+        var config = {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        $http.post(endpoint, body, config)
             .then(function(response) {
                 console.log('API Response:', response);
                 var respObj = response.data;
@@ -82,19 +94,15 @@ angular.module('aiAssistantApp', [])
                     answer = respObj.candidates[0].content.parts[0].text;
                 }
                 
-                $scope.$apply(function() {
-                    $scope.data.result = answer;
-                    $scope.data.editableResponse = answer;
-                    $scope.data.loading = false;
-                    $scope.data.error = '';
-                });
+                $scope.data.result = answer;
+                $scope.data.editableResponse = answer;
+                $scope.data.loading = false;
+                $scope.data.error = '';
             }, function(error) {
                 console.log('API Error:', error);
-                $scope.$apply(function() {
-                    $scope.data.error = 'Error: ' + (error.data && error.data.error && error.data.error.message ? error.data.error.message : 'Network error. Please try again.');
-                    $scope.data.loading = false;
-                    $scope.data.result = '';
-                });
+                $scope.data.error = 'CORS proxy error. Try refreshing or check console for details.';
+                $scope.data.loading = false;
+                $scope.data.result = '';
             });
     };
 });
