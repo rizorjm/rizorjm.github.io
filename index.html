@@ -1,0 +1,63 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3>FieldOps Gemini AI Assistant</h3>
+  </div>
+  <div class="panel-body">
+    <!-- Cool AI Icon & label -->
+    <div style="text-align:center; margin-bottom: 16px;">
+      <!-- Modern AI SVG icon -->
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="30" fill="#2F80ED" stroke="#111827" stroke-width="4"/>
+        <path d="M32 20C28 20 25 23 25 27C25 31 28 34 32 34C36 34 39 31 39 27C39 23 36 20 32 20Z" fill="white"/>
+        <path d="M32 34V44" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="32" cy="48" r="2.5" fill="white"/>
+        <ellipse cx="25" cy="27" rx="2.5" ry="3" fill="#56CCF2" opacity="0.7"/>
+        <ellipse cx="39" cy="27" rx="2.5" ry="3" fill="#56CCF2" opacity="0.7"/>
+      </svg>
+      <div style="font-size: 1.3em; font-weight: 600; color: #2F80ED; margin-top: 8px;">AI Powered Assistant</div>
+    </div>
+
+    <!-- Rest of your widget code (prompt, photo, button, etc.) -->
+    <div class="form-group">
+      <label for="prompt">Question/Prompt:</label>
+      <input type="text"
+             id="prompt"
+             ng-model="data.prompt"
+             class="form-control"
+             placeholder="Ask Gemini AI anything..."
+             ng-keydown="onKeyDown($event)" />
+    </div>
+    
+    <!-- File Upload Section -->
+    <div class="form-group">
+      <label for="fileInput">Upload Document/Image:</label>
+      <input type="file"
+             id="fileInput"
+             class="form-control"
+             accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.csv,.xlsx,.xls"
+             onchange="angular.element(this).scope().fileChanged(this)"
+             ng-disabled="data.loading" />
+      <small class="help-block">Supported: PDF, Word, Text, Images, Excel, CSV</small>
+    </div>
+    
+    <!-- Show selected file info -->
+    <div ng-if="data.imageBase64" class="alert alert-info" style="margin-bottom: 15px;">
+      <i class="fa fa-file"></i> File loaded successfully (Type: {{data.imageType}})
+    </div>
+    
+    <button type="button"
+            class="btn btn-primary"
+            ng-disabled="data.loading"
+            ng-click="submitForm()">
+      Send
+    </button>
+    <div ng-if="data.result" style="margin-top:18px;">
+      <label>Gemini AI Response (editable):</label>
+      <textarea class="form-control" rows="5" ng-model="data.editableResponse"></textarea>
+    </div>
+    <div ng-if="data.error" class="text-danger" style="margin-top:18px;">
+      <pre>{{ data.error }}</pre>
+    </div>
+  </div>
+</div>
+
