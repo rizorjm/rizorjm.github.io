@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 // Allow CORS from your GitHub Pages site
 app.use(cors({
-  origin: 'https://<your-github-username>.github.io' // <-- Replace with your actual GitHub Pages URL
+  origin: 'https://rizorjm.github.io' // <-- Replace with your actual GitHub Pages URL
 }));
 app.use(express.json({ limit: '50mb' }));
 
