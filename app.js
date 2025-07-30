@@ -10,7 +10,7 @@ app.controller('AIController', function($scope, $http) {
         editableResponse: ''
     };
 
-   $scope.submitForm = function() {
+    $scope.submitForm = function() {
         $scope.data.loading = true;
         $scope.data.result = '';
         $scope.data.error = '';
