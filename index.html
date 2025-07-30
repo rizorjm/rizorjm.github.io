@@ -65,7 +65,7 @@
                 <div ng-if="data.result" class="form-group">
                     <label>AI Response:</label>
                     <div class="result-box">
-                        <textarea ng-model="data.editableResponse" 
+                        <textarea id="response-box" ng-model="data.editableResponse" 
                                   placeholder="AI response will appear here..."></textarea>
                     </div>
                 </div>
@@ -77,6 +77,46 @@
             </div>
         </div>
     </div>
+
+    <script>
+document.querySelector('form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // Hide error box initially
+    const errorBox = document.getElementById('error-box');
+    errorBox.style.display = 'none';
+    errorBox.textContent = '';
+
+    // Show loading state if needed...
+
+    // Gather form data as needed
+    const input = document.querySelector('input[name="yourInputName"]'); // update selector as needed
+    const value = input ? input.value : '';
+
+    // Build your request body as needed
+    const body = { prompt: value }; // adjust to your backend needs
+
+    try {
+        const res = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            errorBox.textContent = data.error?.message || 'Unknown error';
+            errorBox.style.display = 'block';
+        } else {
+            // Show AI response in your response box
+            document.getElementById('response-box').textContent = JSON.stringify(data);
+        }
+    } catch (err) {
+        errorBox.textContent = err.message || 'Unknown error';
+        errorBox.style.display = 'block';
+    }
+});
+</script>
 </body>
 </html>
 
