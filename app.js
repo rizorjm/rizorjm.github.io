@@ -15,6 +15,9 @@ app.controller('AIController', function($scope, $http) {
         $scope.data.result = '';
         $scope.data.error = '';
         
+        const apiKey = 'AIzaSyDYI5n4X1GbGnlmEsTgSMC8ZUm7Yt2Or7I';
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        
         const requestBody = {
             contents: [{
                 parts: [{
@@ -32,7 +35,7 @@ app.controller('AIController', function($scope, $http) {
             });
         }
         
-        $http.post('/api/gemini', requestBody).then(function(response) {
+        $http.post(geminiUrl, requestBody).then(function(response) {
             $scope.data.result = response.data;
             $scope.data.editableResponse = JSON.stringify(response.data, null, 2);
         }, function(error) {
