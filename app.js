@@ -32,10 +32,16 @@ app.controller('AIController', function($scope, $http) {
             });
         }
         
-        // Update this URL to your Vercel deployment
         $http.post('https://rizorjm-github-io.vercel.app/api/gemini', requestBody).then(function(response) {
-            $scope.data.result = response.data;
-            $scope.data.editableResponse = JSON.stringify(response.data, null, 2);
+            // Extract the text from the Gemini response
+            if (response.data && response.data.candidates && response.data.candidates[0]) {
+                const text = response.data.candidates[0].content.parts[0].text;
+                $scope.data.result = text;
+                $scope.data.editableResponse = text;
+            } else {
+                $scope.data.result = 'No response from AI';
+                $scope.data.editableResponse = 'No response from AI';
+            }
         }, function(error) {
             console.log('Error:', error);
             $scope.data.error = (error.data && error.data.error && error.data.error.message) 
