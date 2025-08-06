@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyDYI5n4X1GbGnlmEsTgSMC8ZUm7Yt2Or7I';
+        const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyCYKNHk4JCXbXU9g9dJkCqO2cw2jh7J9x8';
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         
         const response = await fetch(geminiUrl, {
