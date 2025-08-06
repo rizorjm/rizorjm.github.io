@@ -13,7 +13,7 @@ app.use(express.static('.'));
 // Proxy endpoint for Gemini API
 app.post('/api/gemini', async (req, res) => {
     try {
-        const apiKey = 'AIzaSyDYI5n4X1GbGnlmEsTgSMC8ZUm7Yt2Or7I';
+        const apiKey = 'AIzaSyCYKNHk4JCXbXU9g9dJkCqO2cw2jh7J9x8';
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         
         const fetch = (await import('node-fetch')).default;
